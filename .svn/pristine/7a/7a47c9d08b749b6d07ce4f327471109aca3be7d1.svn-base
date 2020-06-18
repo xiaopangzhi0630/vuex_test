@@ -146,13 +146,13 @@
     },
     computed: {
       ...mapGetters(['fullHeight', 'mainContainerEl', 'currentLineData', 'currentPage', 'currentPage', 'pageSize']),
-      ...mapGetters('systemManage1', ['dialogVisible' ]),
+      ...mapGetters('systemManage', ['dialogVisible', ]),
     },
     methods: {
       // 新建
       addBtn: function () {
-        this.$store.commit('systemManage1/setDialogVisible', true);
-        this.$store.commit('systemManage1/setOrgType', 'add');
+        this.$store.commit('systemManage/setDialogVisible', true);
+        this.$store.commit('systemManage/setOrgType', 'add');
       },
 
       // 编辑
@@ -168,9 +168,9 @@
           })
         } else if (this.multipleSelection.length == 1) {
 
-          this.$store.commit('systemManage1/setEditChangeInfo', this.multipleSelection[0])
-          this.$store.commit('systemManage1/setDialogVisible', true);
-          this.$store.commit('systemManage1/setOrgType', 'edit')
+          this.$store.commit('systemManage/setEditChangeInfo', this.multipleSelection[0])
+          this.$store.commit('systemManage/setDialogVisible', true);
+          this.$store.commit('systemManage/setOrgType', 'edit')
 
         } else {
           this.$message({
@@ -196,8 +196,8 @@
           })
         } else if (this.multipleSelection.length == 1) {
 
-          this.$store.commit('systemManage1/setEditChangeInfo', this.multipleSelection[0]);
-          this.$store.commit('systemManage1/setStatusDialogVisible', true);
+          this.$store.commit('systemManage/setEditChangeInfo', this.multipleSelection[0]);
+          this.$store.commit('systemManage/setStatusDialogVisible', true);
 
         } else {
           this.$message({

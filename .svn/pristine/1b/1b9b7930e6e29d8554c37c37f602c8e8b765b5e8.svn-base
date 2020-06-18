@@ -59,7 +59,7 @@
 
     computed: {
 
-      ...mapGetters('systemManage1', ['statusDialogVisible', 'editChangeInfo']),
+      ...mapGetters('systemManage', ['statusDialogVisible', 'editChangeInfo']),
     },
 
 
@@ -81,7 +81,7 @@
 
       // 
       saveHandle: function () {
-        this.$store.commit('systemManage1/setStatusDialogVisible', false);
+        this.$store.commit('systemManage/setStatusDialogVisible', false);
 
         console.log(this.ruleForm);
 
@@ -97,7 +97,7 @@
       },
 
       handleClose: function () {
-        this.$store.commit('systemManage1/setStatusDialogVisible', false);
+        this.$store.commit('systemManage/setStatusDialogVisible', false);
       }
 
     },

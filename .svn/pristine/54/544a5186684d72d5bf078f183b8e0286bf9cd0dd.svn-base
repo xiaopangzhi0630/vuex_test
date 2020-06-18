@@ -124,7 +124,7 @@
 
     computed: {
       // ...mapGetters(['fullHeight']),
-      ...mapGetters('systemManage1', ['dialogVisible', 'editChangeInfo', 'btnType']),
+      ...mapGetters('systemManage', ['dialogVisible', 'editChangeInfo', 'btnType']),
     },
 
 
@@ -154,18 +154,18 @@
     methods: {
 
       handleClose(done) {
-        this.$store.commit('systemManage1/setDialogVisible', false);
+        this.$store.commit('systemManage/setDialogVisible', false);
         done();
         // this.$confirm('确认关闭?')
         //   .then(_ => {})
         //   .catch(_ => {});
         // 清空form
-        this.$store.commit('systemManage1/setEditChangeInfo', {})
+        this.$store.commit('systemManage/setEditChangeInfo', {})
       },
 
       // 保存
       saveHandle: function () {
-        this.$store.commit('systemManage1/setDialogVisible', false);
+        this.$store.commit('systemManage/setDialogVisible', false);
 
 
         console.log(this.editChangeInfo);
@@ -174,7 +174,7 @@
       // 确定
       resetHandle: function () {
         // this.$store.commit('systemManage/setDialogVisible', false);
-        this.$store.commit('systemManage1/setEditChangeInfo', {})
+        this.$store.commit('systemManage/setEditChangeInfo', {})
         // this.ruleForm = {
         //   orgCode: '', //机构编码
         //   orgName: '', // 机构名称

@@ -2,30 +2,18 @@
   <div class="page">
     <div class="formContainer">
       <el-form ref="queryform" :model="form" label-width="100px">
-        <el-form-item label="机房名">
-            <el-select v-model="form.roomName" placeholder="请选择">
+        <el-form-item label="租户">
+            <el-select v-model="form.roomName" placeholder="请输入租户名称">
                   <el-option v-for="item in roomNameOptions" :key="item.room_name" :label="item.room_name" :value="item.room_name"></el-option>
             </el-select>
         </el-form-item>
 
-       <el-form-item label="机房地址" style="width:590px">
-            <VDistpicker
-              :province="select.province" 
-              :city="select.city" 
-              :area="select.area" 
-              @province="selectProvince" 
-              @city="selectCity"
-              @area="selectArea"
-              @selected="onSelected">
-            </VDistpicker>
-        </el-form-item>
-
-
-        <el-form-item label="机房状态">
-            <el-select v-model="form.status" placeholder="请选择">
-                <el-option v-for="item in statusInfo" :key="item.code" :label="item.name" :value="item.code"></el-option>
+       <el-form-item label="交易码">
+            <el-select v-model="form.roomName" placeholder="请输入交易码">
+                  <el-option v-for="item in roomNameOptions" :key="item.room_name" :label="item.room_name" :value="item.room_name"></el-option>
             </el-select>
         </el-form-item>
+        
         <ul class="formBtn">
           <el-button type="primary" @click="submit">查询<i class="el-icon-search el-icon--right"></i></el-button>
           <el-button type="primary" @click="resetForm">重置<i class="el-icon-refresh-left el-icon--right"></i></el-button>
