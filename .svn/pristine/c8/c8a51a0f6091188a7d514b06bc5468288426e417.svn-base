@@ -1,0 +1,273 @@
+/* 顶部菜单 */
+.top{
+    position: fixed;
+    box-sizing: border-box;
+    z-index: 998;
+    width: 100%;
+    height: 68px;
+    padding: 0 12px 0 262px ;
+    background-size: cover;
+    transition: transform .1s ease-in-out;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
+}
+.top .homePage{
+    display: block;
+    float: left;
+    height: 68px;
+    margin: 0 12px;
+    line-height: 68px;
+    font-size:3.6rem;
+    cursor: pointer;
+}
+.top .fastLinks{
+    float: left;
+    height: 30px;
+    line-height: 30px;
+    cursor: pointer;
+}
+.top .fastLinks a{
+    box-sizing: border-box;
+    display: block;
+    float: left;
+    padding: 0 16px;
+    margin: 20px 8px 0;
+    text-decoration: none;
+    font-size: 1.6rem;
+    border-radius: 14px;
+}
+.top .fastLinks .active{
+    box-shadow: 0 0 2px rgba(0,0,0,.3);
+}
+.top .avator{
+    float: right;
+    margin: 16px 6px 0 0;
+}
+.top .el-dropdown{
+    float: right;
+    height: 68px;
+    line-height: 68px;
+}
+.switches{
+    float: left;
+    height: 68px;
+    line-height: 68px;
+    font-size: 3.6rem;
+    transition: transform .3s ease-in-out;
+    cursor: pointer;
+}
+.systemTool{
+    float: right;
+    margin-right: 30px;
+}
+.systemTool .toolItem{
+    float: left;
+    height: 68px;
+    line-height: 68px;
+    margin: 0 10px;
+    cursor: pointer;
+}
+.x-badge .el-badge__content.is-fixed{
+    top: 15px;
+}
+.systemTool .toolItem .symbol{
+    float: left;
+    font-size: 3rem;
+}
+.systemTool .toolItem .el-icon--right{
+    margin-left: 0;
+}
+.el-dropdown-link{
+    font-weight: bold;
+    outline: none;
+    cursor: pointer;
+}
+.dropitem li{
+    float: left;
+}
+.dropitem li:first-child{
+    height: 36px;
+    margin-right: 6px;
+    line-height: 36px;
+    font-size: 2.4rem;
+}
+.x-dropdown-item{
+    height: 36px;
+    padding: 0 12px;
+}
+/* 左侧菜单 */
+.aside{
+    position: fixed;
+    z-index: 999;
+    width: 250px;
+    height: 100vh;
+    background-size: cover;
+    transition: all .1s ease-in-out;
+    box-shadow: 2px 0 6px rgba(0,21,41,.35);
+}
+.aside .logo{
+    height: 68px;
+    line-height: 68px;
+    text-align: center;
+}
+.aside .logo .symbol{
+    font-size: 44px;
+    color: #fff;
+}
+.aside .logo .text{
+    width: 250px;
+    font-weight: bold;
+    line-height: 68px;
+    font-size: 2.2rem;
+    color: #fff;
+    text-shadow: 0 4px 2px rgba(0,0,0,.2);
+    overflow: hidden;
+}
+.aside .menus{
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 10px;
+}
+.aside .menus .item{
+    width: 100%;
+}
+.aside .menus .item .item-name{
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+.aside .menus .item .open{
+    background-color: rgba(255,255,255,.3);
+}
+.aside .menus .item .item-name .menu-icon{
+    width: 60px;
+    height: 46px;
+    line-height: 42px;
+    font-size: 3rem;
+    text-align: center;
+    color: #fff;
+}
+.aside .menus .item .item-name .menu-title{
+    width: 130px;
+    height: 46px;
+    line-height: 46px;
+    font-size: 1.6rem;
+    text-align: left;
+    font-weight: bold;
+    color: #fff;
+    transition: all .1s ease-in-out;
+    overflow: hidden;
+}
+.aside .menus .item .item-name .menu-arrow{
+    height: 46px;
+    text-align: center;
+    line-height: 46px;
+    font-size: 2rem;
+    color: #fff;
+    transition: all .2s ease-in-out;
+    overflow: hidden;
+}
+.aside .menus .item .item-content{
+    width: 100%;
+    height: 0;
+    transition: all .2s ease-in-out;
+    overflow: hidden;
+}
+.aside .menus .item .item-content li {
+    position: relative;
+    box-sizing: border-box;
+    display: block;
+    height: 42px;
+    padding-left: 62px;
+    margin-bottom: 6px;
+    line-height: 42px;
+    font-size: 1.4rem;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 20px;
+    cursor: pointer;
+}
+.aside .menus .item .item-content .active{
+    font-weight: bold;
+    background-color: rgba(255,255,255,.8);
+}
+.aside .el-scrollbar{
+    height: 100%;
+}
+.aside .el-scrollbar__wrap{
+    overflow-x: hidden!important;
+}
+.rotate{
+    transform:rotate(-180deg);
+}
+/* 内容部分 */
+.mainContainer{
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 1116px;
+    height: 100vh;
+    padding:80px 12px 0 262px;
+    transition: all .1s ease-in-out;
+    background-color: #f2f2f2;
+  }
+  .mainContainerFull{
+    position: absolute;
+    z-index: 2000;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0!important;
+  }
+  .minBtn{
+    position: absolute;
+    z-index: 2001;
+    left: 50%;
+    top: -150px;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 3rem;
+    line-height: 46px;
+    text-align: center;
+    transition: all .3s ease-in-out;
+    background-color: rgba(0,0,0,.7);
+    cursor: pointer;
+  }
+  .minBtnShow{
+    top: 100px;
+  }
+  .mainContainer .inner{
+    width: 100%;
+    height: 100%;
+  }
+  .mainContainer .inner .page{
+    width: 100%;
+    height: 100%;
+    background-color:#fff;
+  }
+  .mainContainer .inner .echartspage{
+    width: 100%;
+    height: 100%;
+  }
+  .icon {
+    width: 1em; height: 1em;
+    vertical-align: -0.15em;
+    fill: currentColor;
+    overflow: hidden;
+  }
+  .clearfix:after{content:".";display:block;height:0;clear:both;visibility:hidden}
+  .chenxuan{
+    border-color: rgba(0,0,0,.7)!important;
+    background-color: rgba(0,0,0,.7)!important;
+  }
+  .chenxuan .el-message__content{
+    color: #fff!important;
+  }
+  .chenxuan .el-icon-success{
+  color: #fff!important;
+  font-size: 2rem!important;
+  }

@@ -1,0 +1,139 @@
+import Vue from 'vue'
+import Router from 'vue-router'
+import Test1 from '@/views/test/1'
+import Test2 from '@/views/test/2'
+import Test3 from '@/views/test/3'
+import Test4 from '@/views/test/4'
+import Main from '@/views/main'
+import Login from '@/views/login' 
+import AppMange from '@/views/appManages/appMange'
+import ModuleManage from '@/views/appManages/moduleManage'
+import ApiManage from '@/views/appManages/apiManage'
+import DeployManage from '@/views/appManages/deployManage'
+import ServiceManage from '@/views/appManages/serviceManage' 
+//资源管理
+import RoomManage from '@/views/resourManage/roomManage'
+import MachineManage from '@/views/resourManage/machineManage'   
+import MachineGroup from '@/views/resourManage/machineGroup'
+import Channel from '@/views/resourManage/channel'
+import KeyManage from '@/views/resourManage/keyManage'
+import BlacklistManage from '@/views/resourManage/blacklistManage'
+import UnusualManage from '@/views/resourManage/unusualManage'
+
+//系统管理
+import OrgManage from '@/views/systemManage/orgManage'
+Vue.use(Router)
+
+export default new Router({
+  routes: [
+    {
+      path: '/',
+      name: 'Login',
+      component: Login
+    },
+    {
+      path: '/login',
+      name: 'Login',
+      component: Login
+    },
+    {
+      path: '/main',
+      name: 'Main',
+      component: Main,
+      meta:{isLogin:true},
+      children: [
+        {
+          path: 'test1',
+          name: 'Test1',
+          component: Test1
+        },
+        {
+          path: 'test2',
+          name: 'Test2',
+          component: Test2
+        },
+        {
+          path: 'test3',
+          name: 'Test3',
+          component: Test3
+        },
+        {
+          path: 'test4',
+          name: 'Test4',
+          component: Test4
+        },
+        // 应用管理
+        {
+          path: '/',
+          name: 'AppMange',
+          component: AppMange
+        },{
+          path: 'appMange',
+          name: 'AppMange',
+          component: AppMange
+        },{
+          path: 'moduleManage',
+          name: 'ModuleManage',
+          component: ModuleManage
+        },{
+          path: 'apiManage',
+          name: 'ApiManage',
+          component: ApiManage
+        },{
+          path: 'serviceManage',
+          name: 'ServiceManage',
+          component: ServiceManage
+        },{
+          path: 'deployManage',
+          name: 'DeployManage',
+          component: DeployManage
+        },
+        // 资源管理
+        {
+          path: 'roomManage',
+          name: 'RoomManage',
+          component: RoomManage
+        },
+        {
+          path: 'machineManage',
+          name: 'MachineManage',
+          component: MachineManage
+        },
+        {
+          path: 'machineGroup',
+          name: 'MachineGroup',
+          component: MachineGroup
+        },
+        {
+          path: 'channel',
+          name: 'Channel',
+          component: Channel
+        },
+        {
+          path: 'keyManage',
+          name: 'KeyManage',
+          component: KeyManage
+        },
+        {
+          path: 'blacklistManage',
+          name: 'BlacklistManage',
+          component: BlacklistManage
+        },
+        {
+          path: 'unusualManage',
+          name: 'UnusualManage',
+          component: UnusualManage
+        },
+        //系统管理
+        {
+          path: 'orgManage',
+          name: 'OrgManage',
+          component: OrgManage
+        },
+      ] 
+      
+    }
+
+  ],
+  mode:'history'
+})

@@ -1,0 +1,223 @@
+<template>
+	<div>
+		<el-dialog 
+		:title="title" 
+		width="860px"
+		:visible="dialogFormVisible"
+		@close="close"
+		>
+		  <el-form :model="currentLineData" class="clearfix" label-width="140px">
+		  	<div class="formBlock">
+			    <el-form-item label="模块编码" >
+			      <el-input v-model="currentLineData.moduleCode" autocomplete="off"></el-input>
+			    </el-form-item>
+
+			    <el-form-item label="模块名称" >
+			      <el-input v-model="currentLineData.moduleName" autocomplete="off"></el-input>
+			    </el-form-item>
+
+			    <el-form-item label="模块英文名称">
+			      <el-input v-model="currentLineData.englishName" autocomplete="off"></el-input>
+			    </el-form-item>
+
+				<el-form-item label="模块说明">
+			      <el-input v-model="currentLineData.remark" autocomplete="off"></el-input>
+			    </el-form-item>
+		    </div>
+
+		    <div class="formBlock">
+				<el-form-item label="状态" >
+					<el-select v-model="currentLineData.status" placeholder="请选择">
+						<el-option v-for="item in statusInfo" :key="item.code" :label="item.name" :value="item.code"></el-option>
+					</el-select>
+			    </el-form-item>
+
+			    <el-form-item label="模块Url" >
+			      <el-input v-model="currentLineData.url" autocomplete="off"></el-input>
+			    </el-form-item>
+
+				<el-form-item label="所属应用系统">
+					<el-select v-model="currentLineData.appCode" filterable placeholder="请选择或搜索">
+						<el-option v-for="item in appnameOptions" :key="item.app_name" :label="item.app_name" :value="item.app_name"></el-option>
+					</el-select>
+				</el-form-item>
+
+				
+		    </div>
+
+		  </el-form>
+		  <div slot="footer" class="dialog-footer">
+		    <el-button @click="cancel">取消</el-button>
+		    <el-button type="primary" @click="submit" >提交</el-button>
+		  </div>
+		</el-dialog>
+	</div>
+</template>
+<script>
+import appManagetypes from '../../../store/appManage-types.js'
+import {mapGetters,mapState,mapActions} from 'vuex'
+export default{
+	name:'Dialog',
+	data:function(){
+		return{
+			formEmpty:false,
+			formLabelWidth: '120px',
+			appnameOptions:[],
+			statusInfo:[]
+		}
+	},
+	computed:{
+		...mapGetters(['theme','dialogFormVisible','title','currentLineData','dialogStatus','currentPage','pageSize','fullHeight']),
+	},
+	mounted:function(){
+		this.queryAppName();
+		this.queryStatus();
+	},
+	methods:{
+		//查询已有应用
+		queryAppName:function(){
+			this.$axios.get(process.env.API_HOST+'/appInfo/name')
+			.then((res)=>{
+			this.appnameOptions=res.data.data.name;
+			})
+		},
+		 //查询所有已存在的状态
+		queryStatus:function(){
+			this.$axios.get(process.env.API_HOST+'/moduleInfo/eject')
+			.then((res)=>{
+			this.statusInfo=[];
+			let resData=res.data.data.status,that=this;
+			resData.find((val,index,arr)=>{
+				let cellObj={};
+				cellObj.code=val.code;
+				cellObj.name=val.name;
+				that.statusInfo.push(cellObj);
+			})
+			})
+		},
+		submit:function(){
+			//添加提交
+			if(this.dialogStatus=='add'){
+				let that=this,
+				createUsername='addtor',
+				updateUsername='editor';
+				console.log(this.currentLineData);
+				this.currentLineData.createTime=new Date().toISOString();  //为确定字段
+				this.currentLineData.updateTime=new Date().toISOString();  //为确定字段
+				this.currentLineData.createUsername=createUsername; //为确定字段
+				this.currentLineData.updateUsername=updateUsername;  //为确定字段
+				this.currentLineData.moduleServiceCode='xxxxxx';  //为确定字段
+				this.$axios({
+					url:process.env.API_HOST+`//moduleInfo/addModule?pageNum=${this.currentPage}&pageSize=${this.pageSize}`,
+					method:'post',
+					data:JSON.stringify(that.currentLineData),
+				})
+				.then((res)=>{
+					// console.log(res);
+					this.$store.commit(appManagetypes.turnDialogFormVisible,false);
+					this.$store.commit(appManagetypes.setCurrentLineData,{
+						moduleCode:'',
+						moduleName:'',
+						appName:'',
+						englishName:'',
+						appCode:'',
+						url:'',
+						status:'',
+						moduleServiceCode:'',
+						remark:''
+						}
+					)
+				})
+				.catch((err)=>{
+					console.log(err)
+				})
+			}
+			//编辑提交
+			else if(this.dialogStatus=='edit'){
+				let that=this,
+				updateUsername='editor';
+				this.currentLineData.updateTime=new Date().toISOString();
+				this.currentLineData.updateUsername=updateUsername;
+				this.$axios({
+					url:process.env.API_HOST+`/moduleInfo/updateModule?pageNum=${this.currentPage}&pageSize=${this.pageSize}`,
+					method:'post',
+					data:JSON.stringify(that.currentLineData),
+				})
+				.then((res)=>{
+					this.$store.commit(appManagetypes.turnDialogFormVisible,false);
+					this.$store.commit(appManagetypes.setCurrentLineData,{
+						moduleCode:'',
+						moduleName:'',
+						appName:'',
+						englishName:'',
+						appCode:'',
+						url:'',
+						status:'',
+						moduleServiceCode:'',
+						remark:''
+						}
+					)
+				})
+				.catch((err)=>{
+					console.log(err)
+				})
+			}
+		},
+		close:function(){
+			let that=this;
+			Object.keys(that.currentLineData).forEach((key)=>{
+				if(that.currentLineData[key]!=''){
+					that.formEmpty=true
+				}
+			});
+			if(this.formEmpty){
+				that.$confirm('检测到表单内容非空，是否要关闭？','确认信息',{
+							showClose:false,
+							customClass:this.theme
+				})
+				.then(()=>{
+					that.$store.commit(appManagetypes.turnDialogFormVisible,false);
+					that.$store.commit(appManagetypes.setCurrentLineData,{
+						appCode: '',
+						appName: '',
+						englishName:'',
+						status: '',
+						loginName:'',
+						url: '',
+						password: '',
+						remark:''
+					});
+				})
+				.catch(()=>{
+					return false
+				})
+			}
+			else{
+				that.$store.commit(appManagetypes.turnDialogFormVisible,false);
+				that.$store.commit(appManagetypes.setCurrentLineData,{
+					appCode: '',
+					appName: '',
+					englishName:'',
+					status: '',
+					loginName:'',
+					url: '',
+					password: '',
+					remark:''
+				});
+			};
+			that.formEmpty=false;
+			
+		},
+		cancel:function(){
+			this.$store.commit(appManagetypes.turnDialogFormVisible,false);
+			this.$message({
+				showClose:false,
+				type:'success',
+				message:'已取消编辑',
+				center:'center',
+				offset:this.fullHeight/2,
+			})
+		}
+	}
+}
+</script>

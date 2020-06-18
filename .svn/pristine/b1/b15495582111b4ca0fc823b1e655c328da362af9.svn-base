@@ -1,0 +1,270 @@
+<template>
+  <div class="page">
+    <div class="formContainer">
+      <el-form ref="queryform" :model="form" label-width="100px">
+        <el-form-item label="分组名称">
+          <el-select v-model="form.groupName" placeholder="请选择">
+            <el-option label="机房名1" value="日志动态分析"></el-option>
+            <el-option label="机房名2" value="ES监控"></el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="状态">
+            <el-select v-model="form.status" placeholder="请选择" @click.native="queryStatus" >
+                <el-option v-for="item in statusInfo" :key="item.code" :label="item.name" :value="item.code"></el-option>
+            </el-select>
+        </el-form-item>
+        <ul class="formBtn">
+          <el-button type="primary" @click="submit">查询<i class="el-icon-search el-icon--right"></i></el-button>
+          <el-button type="primary" @click="resetForm('queryform')">重置<i class="el-icon-refresh-left el-icon--right"></i></el-button>
+        </ul>
+      </el-form>
+    </div>
+    <div class="tableToolContainer clearfix">
+        <div class="btnGroup-base">
+            <el-button type="success" icon="el-icon-plus" circle @click="addItem"></el-button>
+            <el-button type="primary" icon="el-icon-edit" circle @click="btnEdit"></el-button>
+        </div>
+        <div class="btnGroup-other">
+          <el-button  type="primary" round>选择服务器</el-button>
+        </div>
+    </div>
+    <div class="tableContainer">
+      <el-table
+        :data="tableDatas"
+        style="width: 100%"
+        :border="false"
+        :height="fullHeight-300"
+        row-key="id"
+        lazy
+        :load="load"
+        :tree-props="{children: 'children', hasChildren: 'hasChildren'}">
+        @current-change="handleCurrentChange"
+        >
+        <el-table-column
+          type="selection"
+          width="55">
+        </el-table-column>
+        <el-table-column
+          fixed
+          type="index"
+          :index="indexMethod"
+          label="序号"
+          width="90"
+        >
+        </el-table-column>
+        <el-table-column
+          prop="groupCode"
+          label="服务器分组编码"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="groupName"
+          label="服务器分组名称"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="deployRootPath"
+          label="服务器部署根目录"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="status"
+          label="状态" 
+          width="100">
+        </el-table-column>
+        <el-table-column
+          prop="remark"
+          label="规划说明">
+        </el-table-column>
+      </el-table>
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange1"
+        :current-page="currentPage"
+        :page-sizes="[10, 20, 30, 40]"
+        :page-size="100"
+        layout="sizes, prev, pager, next, jumper"
+        :total="999">
+      </el-pagination>
+    </div>
+    <Dialog></Dialog>
+  </div>
+</template>
+<script>
+import appManagetypes from '../../store/appManage-types.js'
+import {mapGetters,mapState,mapActions} from 'vuex'
+import Dialog from './dialog/machineGroupDialog'
+export default {
+    name:"Table1",
+    components:{
+        Dialog
+    },
+    data:function(){
+        return{
+            form:{
+                appName:'',
+                status:'',
+                 switch:true,
+            },
+            formEmpty:false,        
+            tableDatas:[],      
+            statusInfo:[{code:null,name:null}],
+            childrenGroup:[]
+        }
+    },
+    beforeRouteEnter:(to,from,next)=>{
+		next(vm=>{
+        vm.mainContainerEl.setAttribute("class", "mainContainer animate__animated animate__fadeInLeft");
+		});
+    },
+    beforeRouteLeave:function(to,from,next){
+        this.mainContainerEl.setAttribute("class", "mainContainer");
+        next();
+    },
+    mounted:function(){
+        this.$store.dispatch('getfullHeight');
+        this.queryPageList(JSON.stringify({}));
+        this.queryStatus();
+    },
+    computed:{
+        ...mapGetters(['fullHeight','mainContainerEl','currentLineData','currentPage','currentPage','pageSize']),
+    },
+    methods: {
+      //查询所有已存在的状态
+      queryStatus:function(){
+        this.$axios.get(process.env.API_HOST+'/machinesGroup/dropdown')
+        .then((res)=>{
+          this.statusInfo=[];
+          let resData=res.data.data.status,that=this;
+          resData.find((val,index,arr)=>{
+            let cellObj={};
+            cellObj.code=val.code;
+            cellObj.name=val.name;
+            cellObj.roomAddress=val.roomAddress
+            that.statusInfo.push(cellObj);
+          })
+        })
+      },
+      //序列
+      indexMethod(index) {
+        return index+1;
+      },
+      //size
+      handleSizeChange(val) {
+        console.log(val)
+        this.$store.commit(appManagetypes.setPageSize,val);
+        this.tableDatas=[];
+        let that=this;
+        this.queryPageList(JSON.stringify(that.form));
+      },
+      //page
+      handleCurrentChange1(val) {
+        this.$store.commit(appManagetypes.setCurrentPage,val);
+        this.tableDatas=[];
+        let that=this;
+        this.queryPageList(JSON.stringify(that.form));
+      },
+      //单选
+      handleCurrentChange(val) {
+        this.$store.commit(appManagetypes.setCurrentLineData,val);
+      },
+      //编辑按钮
+      btnEdit:function(){
+        let that=this;
+        console.log(this.currentLineData);
+        Object.keys(that.currentLineData).forEach((key)=>{
+          if(that.currentLineData[key]!=''){
+            that.formEmpty=true
+          }
+		  	});
+        if(this.formEmpty){
+            this.$store.commit(appManagetypes.turnDialogFormVisible,true); //显示弹窗
+            this.$store.commit(appManagetypes.setTitle,'服务器分组编辑');     //弹窗标题
+            this.$store.commit(appManagetypes.turnDialogStatus,'edit');   //弹窗状态 edit|add
+        }
+        else{
+          this.$message({
+            showClose:false,
+            type:'warning',
+            message:'请先选择一行！',
+            center:'center',
+            offset:this.fullHeight/2,
+          })
+        }
+      },
+      //添加
+      addItem(){
+        this.$store.commit(appManagetypes.turnDialogFormVisible,true);
+        this.$store.commit(appManagetypes.setTitle,'服务器分组设置');
+        this.$store.commit(appManagetypes.turnDialogStatus,'add');
+      },
+      submit:function(){
+        let that=this;
+        this.tableDatas=[];
+        this.queryPageList(JSON.stringify(that.form));
+      },
+      resetForm() {
+        let obj=this.form;
+        let that=this;
+        Object.keys(obj).forEach((key)=>{
+          obj[key]='';
+        });
+        this.tableDatas=[];
+        this.queryPageList(JSON.stringify(that.form));
+      },
+      viewChange:function(){
+        console.log(this.view);
+      },
+      queryPageList:function(appInfo){
+         this.$axios.post(process.env.API_HOST+`/machinesGroup/selectPageList?pageNum=${this.currentPage}&pageSize=${this.pageSize}`,appInfo).then((res)=>{
+            let that=this;
+            let resData=res.data.data.list;
+            console.log(resData);
+          if(resData){
+             resData.find((value,index,arr)=>{
+              let cellObj={}
+              cellObj.id=value.id;
+              cellObj.groupCode=value.groupCode;
+              cellObj.groupName=value.groupName;
+              cellObj.deployRootPath=value.deployRootPath;
+              cellObj.status=value.status;
+              cellObj.remark=value.remark;
+              if(value.machinesInfos){
+                cellObj.hasChildren=true;
+                cellObj.machinesInfos=value.machinesInfos
+              }
+              that.tableDatas.push(cellObj);
+            })
+          }
+           
+        }).catch((err)=>{
+            console.log(err);
+        })
+      },
+      load(tree, treeNode, resolve) {
+        let that=this,headObj={id:`1314_1314${tree.id}`,groupCode:"服务器编码",groupName:"服务器名称",deployRootPath:"服务器IP",status:"服务器状态",remark:"服务器部署目录"};
+        that.childrenGroup=[];
+        tree.machinesInfos.find((value,index,arr)=>{
+          let Obj={};
+          Obj.id=tree.id+"_"+value.id;
+          Obj.groupCode=value.machineCode;
+          Obj.groupName=value.machineName;
+          Obj.deployRootPath=value.machineDomain;
+          Obj.status=value.status;
+          Obj.remark=value.deployRoot;
+          Obj.hasChildren=false;
+          that.childrenGroup.push(Obj);
+        })
+        that.childrenGroup.unshift(headObj);
+        console.log(that.childrenGroup);
+        return  resolve(that.childrenGroup);
+       
+        // return resolve(tree.machinesInfos);
+      }
+    }
+}
+</script>
+<style>
+
+</style>

@@ -1,0 +1,111 @@
+.formContainer{
+    position: relative;
+    box-sizing: border-box;
+    padding:0 212px 16px 0;
+    max-height: 136px;
+    overflow-y: auto;
+    border-bottom: 4px solid #f2f2f2;
+}
+.formContainer:after{content:".";display:block;height:0;clear:both;visibility:hidden}
+.formContainer .el-form-item{
+    float: left;
+    width: 260px;
+    margin: 18px 8px 0 0;
+}
+.formContainer .formBtn{
+    position: absolute;
+    right: 12px;
+    top: 18px;
+}
+.formBlock{
+    /* float: left; */
+    /* width: 380px; */
+}
+.formBlock .el-form-item{
+    float: left;
+    width: 380px;
+}
+.formBlock .el-select {
+    width: 100%;
+}
+.formBlock .remark{
+    width: 760px;
+}
+.formBlock .wholeLine{
+    width: 760px;
+}
+.tableToolContainer{
+    box-sizing: border-box;
+    margin: 12px 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid #ebeef5;
+}
+.tableToolContainer .viewsFilter{
+    display: inline-block;
+    margin-left: 40px;
+}
+.tableToolContainer .btnGroup-base{
+    float: left;
+}
+.tableToolContainer .btnGroup-other{
+    float: left;
+    margin: 0 0 0 40px;
+}
+.tableToolContainer .btnGroup-other .el-form-item__content{
+    float: left;
+}
+.tableToolContainer .btnGroup-other .el-form-item{
+    margin-bottom:0;
+}
+.tableToolContainer .btnGroup-other .el-switch{
+    margin-top: 12px
+}
+.tableContainer{
+    box-sizing: border-box;
+    padding: 0 16px 16px 16px;
+    background-color: #fff;
+}
+.el-table .disable-row {
+    background: #ededee;
+}
+.el-table thead{
+    color: #333;
+    font-weight: bold;
+}
+/* .tableContainer .el-table thead{
+    color: #333;
+    font-weight: bold;
+} */
+/* .tableContainer .el-table .cell{
+    text-align: center;
+} */
+
+.tableContainer .el-pagination{
+    margin-top: 12px;
+}
+/* ElementUI重置*/
+.el-table .cell{
+    text-align: center;
+}
+.el-table thead{
+    color: #333;
+    font-weight: bold;
+}
+.clearfix:after{
+    content: '';
+    display:block;
+    clear: both;
+}
+
+/* 其他样式 */
+.dropTable .dropTable-search .el-input{
+    width: 690px;
+}
+.dropTable .dropTable-search .el-input__inner{
+    height: 34px;
+    text-indent: 24px;
+    /* border: none; */
+    border-radius: 14px;
+    /* text-align: center; */
+    /* border-bottom: 2px solid #3A6073;; */
+}

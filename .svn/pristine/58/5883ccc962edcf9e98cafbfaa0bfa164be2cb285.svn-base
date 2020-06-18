@@ -1,0 +1,23 @@
+const state = {
+    example:'',
+}
+const getters={
+    example:(state)=>{
+        return state.example
+    },
+
+}
+const actions={
+}
+const mutations={
+    setExample(state,data){
+        state.example=data
+    }
+}
+export default {
+    namespaced: true,
+    state,
+    getters,
+    mutations,
+    actions
+}

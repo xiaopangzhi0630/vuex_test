@@ -1,0 +1,328 @@
+<template>
+	<div>
+		<el-dialog 
+		:title="title" 
+		width="880px"
+		:visible="dialogFormVisible"
+		:close-on-click-modal=false
+		:append-to-body=true
+		@close="close"
+		>
+		  <el-form :model="currentLineData" class="clearfix" label-width="140px" :rules="rules" ref="ruleForm">
+		  	<div class="formBlock">
+			    <el-form-item label="区域/机房编码" prop="roomCode">
+			      <el-input v-model="currentLineData.roomCode" autocomplete="off" placeholder="请选择"></el-input>
+			    </el-form-item>
+			    <el-form-item label="区域/机房名称">
+			       <el-input v-model="currentLineData.roomName" autocomplete="off" placeholder="请输入区域机房名称"></el-input>
+			    </el-form-item>
+				  <el-form-item label="区域/机房状态">
+					   <el-switch 
+							v-model="form.switch"
+							@change="change"
+							active-text="启用"
+							inactive-text="禁用">
+							>
+						</el-switch>
+			    </el-form-item>
+				<el-form-item label="区域/机房负责人">
+				  <el-input v-model="currentLineData.chargeman" autocomplete="off" placeholder="请输入负责人"></el-input>
+				</el-form-item>
+			    <el-form-item label="负责人联系方式">
+			      <el-input v-model="currentLineData.roomMobile" autocomplete="off" placeholder="请输入负责人联系方式" ></el-input>
+			    </el-form-item>
+
+				<el-form-item label="负责人邮箱">
+			      <el-input v-model="currentLineData.roomEmail" autocomplete="off"  placeholder="请输入负责人联系邮箱"></el-input>
+			    </el-form-item>
+				<el-form-item label="区域/机房地址" class="wholeLine">
+					<VDistpicker
+						:province="select.province" 
+						:city="select.city" 
+						:area="select.area" 
+						@province="selectProvince" 
+						@city="selectCity"
+						@area="selectArea"
+						@selected="onSelected">
+					</VDistpicker>
+			    </el-form-item>
+
+				<el-form-item label="详细地址" class="wholeLine">
+				  <el-input type="textarea" v-model="currentLineData.detailedAddress" placeholder="请输入详细地址，精确到门牌号"></el-input>
+			    </el-form-item>
+
+				<el-form-item label="备注" class="wholeLine">
+				  <el-input type="textarea" v-model="currentLineData.remark" placeholder="请输入备注"></el-input>
+			    </el-form-item>
+		    </div>
+
+		  </el-form>
+		  <div slot="footer" class="dialog-footer">
+		    <el-button @click="cancel">取消</el-button>
+		    <el-button type="primary" @click="submit('ruleForm')" >提交</el-button>
+		  </div>
+		</el-dialog>
+	</div>
+</template>
+<script>
+import appManagetypes from '../../../store/appManage-types.js'
+import VDistpicker from '../../../components/distPicker'
+import {mapGetters,mapState,mapActions} from 'vuex'
+export default{
+	name:'Dialog',
+	components:{
+		VDistpicker
+	},
+	data:function(){
+		var validaRoomCode = (rule, value, callback) => {
+			if (!value) {
+				return callback(new Error('区域/机房编码不能为空'));
+			}
+			else{
+				callback();
+			}
+
+		};
+		return{
+            //城市联动默认值
+            select: { province: '', city: '', area: '' },
+			formEmpty:false,   //true 表单非空，关闭时将进行提示 | false  表单为空，可直接关闭 
+			formLabelWidth: '120px', 
+			statusInfo:[{code:null,name:null}],
+			type:true,
+			roomAddressFine:false,//城市联动是否完整 省 市 区，若不完整将不能提交
+			form:{switch:true},  //默认启用
+			switchStatus:'', //存储switch状态 1| 2
+			rules: {
+				roomCode: [
+					{ validator: validaRoomCode, trigger: 'blur'}
+				]
+			}
+		}
+	},
+	computed:{
+		...mapGetters(['theme','dialogFormVisible','title','currentLineData','dialogStatus','currentPage','pageSize','fullHeight']),
+	},
+	mounted:function(){
+		// console.log(this.currentLineData);
+		// this.$parent.refeshLastpage()
+	},
+	watch:{
+		dialogStatus:function(val){
+			if(val=="edit"){
+				this.select.province=this.currentLineData.provinceName;
+				this.select.city=this.currentLineData.cityName;
+				this.select.area=this.currentLineData.areaName;
+			}
+		},
+		currentLineData:{
+			handler:function(val){
+				if(this.dialogStatus=='edit'){
+					if(val.status_){
+					this.form.switch=true;
+					}
+					else if(val.status_){
+						this.form.switch=false;
+					}
+				}
+				
+			},
+			deep:true
+		}
+	},
+	methods:{
+		//查询状态
+		queryStatus:function(){
+			this.$axios.get(process.env.API_HOST+'/deployInfo/operation')
+			.then((res)=>{
+			this.statusInfo=[];
+			let resData=res.data.data.status,that=this;
+			resData.find((val,index,arr)=>{
+				let cellObj={};
+				cellObj.code=val.code;
+				cellObj.name=val.name;
+				that.statusInfo.push(cellObj);
+			})
+			})
+		},
+		//城市联动
+		selectProvince(value) {
+			this.select.province = value.value;
+			this.currentLineData.provinceCode=value.code;
+			this.currentLineData.provinceName=value.value;
+		},
+		selectCity(value) {
+			this.select.city = value.value;
+			this.currentLineData.areaCode=value.code;
+			this.currentLineData.areaName=value.value;
+			
+		},
+		selectArea(value) {
+			this.select.area = value.value;
+			this.currentLineData.cityCode=value.code;
+			this.currentLineData.cityName=value.value;
+			
+		},
+		onSelected(data) {
+			//城市联动填写完成
+			this.roomAddressFine=true;
+		},
+		reset() {
+			this.select.province = ''
+			this.select.city = ''
+			this.select.area = ''
+		},
+		change:function(val){
+			val ? this.switchStatus='1' : this.switchStatus='2';
+		},
+		submit:function(a){
+			//添加提交
+			let that=this;
+			if(this.dialogStatus=='add'){
+				//城市联动填写合法
+				if(this.roomAddressFine){
+					that.$refs[a].validate((valid) => {
+						//表单校验合法
+						if(valid){
+							let machinesRoom=that.currentLineData;
+							machinesRoom.status=this.switchStatus;
+							that.$axios({
+								url:process.env.API_HOST+`/machinesRoom/add`,
+								method:'post',
+								data:JSON.stringify(machinesRoom),
+						
+							})
+							.then((res)=>{
+								this.$store.commit(appManagetypes.turnDialogFormVisible,false);
+								Object.keys(that.currentLineData).forEach((key)=>{
+									that.currentLineData[key]=''
+								});
+								this.$message({
+									showClose:false,
+									type:'success',
+									message:'添加成功！',
+									center:'true',
+									offset:this.fullHeight/2,
+								});
+								this.$parent.refeshLastpage()
+							})
+							.catch((err)=>{
+								this.$message({
+									showClose:false,
+									type:'error',
+									message:'抱歉，添加失败！',
+									center:'true',
+									offset:this.fullHeight/2,
+								})
+							})
+						}
+						//表单校验不合法
+						else{
+							return false;
+						}
+					})
+				}
+				//城市联动填写不合法
+				else{
+					this.$message({
+						showClose:false,
+						type:'error',
+						message:'区域/机房地址填写不合法！',
+						center:'true',
+						offset:this.fullHeight/2,
+					})
+				}
+				
+			}
+			//编辑提交
+			else if(this.dialogStatus=='edit'){
+				let that=this;
+				this.$axios({
+					url:process.env.API_HOST+`/machinesRoom/update?pageNum=${this.currentPage}&pageSize=${this.pageSize}`,
+					method:'post',
+					data:JSON.stringify(that.currentLineData),
+				})
+				.then((res)=>{
+					this.$store.commit(appManagetypes.turnDialogFormVisible,false);
+					this.$store.commit(appManagetypes.setCurrentLineData,{
+						roomCode: '',
+						roomName: '',
+						roomAddress:'',
+						status:'',
+						chargeman: '',
+						roomMobile:'',
+						machineIp: '',
+						machineName: '',
+						roomEmail: '',
+						remark: '',
+						}
+					)
+					this.$message({
+						showClose:false,
+						type:'success',
+						message:'修改成功！',
+						center:'true',
+						offset:this.fullHeight/2,
+					});
+				})
+				.catch((err)=>{
+					this.$message({
+						showClose:false,
+						type:'error',
+						message:'操作失败！',
+						center:'true',
+						offset:this.fullHeight/2,
+					})
+				})
+			}
+		},
+		close:function(){
+			let that=this;
+			// Object.keys(that.currentLineData).forEach((key)=>{
+			// 	if(that.currentLineData[key]!=''){
+			// 		that.formEmpty=true
+			// 	}
+			// });
+			if(this.formEmpty){
+				that.$confirm('检测到表单内容非空，是否要关闭？','确认信息',{
+							showClose:false,
+							customClass:this.theme
+				})
+				.then(()=>{
+					// Object.keys(that.currentLineData).forEach((key)=>{
+					// 	that.currentLineData[key]=''
+					// });
+					that.$store.commit(appManagetypes.turnDialogFormVisible,false);
+					// that.$store.commit(appManagetypes.setCurrentLineData,this.currentLineData);
+				})
+				.catch(()=>{
+					return false
+				})
+			}
+			else{
+				// Object.keys(that.currentLineData).forEach((key)=>{
+				// 	that.currentLineData[key]=''
+				// });
+				that.$store.commit(appManagetypes.turnDialogFormVisible,false);
+				// that.$store.commit(appManagetypes.setCurrentLineData,this.currentLineData);
+			};
+			that.formEmpty=false;
+			
+		},
+		cancel:function(){
+			this.$store.commit(appManagetypes.turnDialogFormVisible,false);
+			this.$message({
+				showClose:false,
+				type:'success',
+				message:'已取消编辑',
+				center:'center',
+				offset:this.fullHeight/2,
+			})
+		},
+		reset:function(){
+
+		}
+		
+	}
+}
+</script>

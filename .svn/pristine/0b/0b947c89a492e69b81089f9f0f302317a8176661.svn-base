@@ -1,0 +1,292 @@
+<template>
+  <div class="page">
+    <div class="formContainer">
+      <el-form ref="queryform" :model="form" label-width="100px">
+        <el-form-item label="应用名称">
+          <el-select v-model="form.appName" filterable placeholder="请选择或搜索">
+            <el-option v-for="item in appnameOptions" :key="item.app_name" :label="item.app_name" :value="item.app_name"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="应用状态">
+            <el-select v-model="form.status" placeholder="请选择">
+                <el-option v-for="item in statusInfo" :key="item.code" :label="item.name" :value="item.code"></el-option>
+            </el-select>
+        </el-form-item>
+        <ul class="formBtn">
+            <el-button type="primary" @click="submit">查询<i class="el-icon-search el-icon--right"></i></el-button>
+            <el-button type="primary" @click="resetForm('queryform')">重置<i class="el-icon-refresh-left el-icon--right"></i></el-button>
+        </ul>
+      </el-form>
+    </div>
+    <div class="tableToolContainer">
+      <el-row>
+        <el-button type="success" icon="el-icon-plus" circle @click="addItem"></el-button>
+        <el-button type="primary" icon="el-icon-edit" circle @click="btnEdit"></el-button>
+      </el-row>
+    </div>
+    <div class="tableContainer">
+      <el-table
+        :data="tableDatas"
+        style="width: 100%"
+        :border="false"
+        :height="fullHeight-300"
+         highlight-current-row
+        @current-change="handleCurrentChange"
+        >
+        <el-table-column
+          fixed
+          type="index"
+          :index="indexMethod"
+          label="序号"
+          width="90"
+        >
+        </el-table-column>
+        <el-table-column
+          prop="id"
+          label="应用系统编码"
+          width="120">
+        </el-table-column>
+        <el-table-column
+          prop="appName"
+          label="应用名称"
+          width="140">
+        </el-table-column>
+        <el-table-column
+          prop="englishName"
+          label="应用英文名称"
+          width="140">
+        </el-table-column>
+        <el-table-column
+          prop="status"
+          label="状态"
+          width="90">
+        </el-table-column>
+        <el-table-column
+          prop="url"
+          label="系统访问Url"
+          width="140">
+        </el-table-column>
+        <el-table-column
+          prop="remark"
+          label="系统概述">
+        </el-table-column>
+        <el-table-column
+          prop="createTime"
+          label="创建时间"
+          width="240">
+        </el-table-column>
+        <el-table-column
+          prop="createUsername"
+          label="创建人"
+          width="120">
+        </el-table-column>
+        <el-table-column
+          prop="orgCode"
+          label="组织机构代码"
+          width="120">
+        </el-table-column>
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              @click="lineEdit(scope)">编辑</el-button>
+          </template>
+        </el-table-column>
+
+      </el-table>
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange1"
+        :current-page="currentPage"
+        :page-sizes="[10, 20, 30, 40]"
+        :page-size="100"
+        layout="sizes, prev, pager, next, jumper"
+        :total="999">
+      </el-pagination>
+    </div>
+    <Dialog></Dialog>
+  </div>
+</template>
+<script>
+import appManagetypes from '../../store/appManage-types.js'
+import {mapGetters,mapState,mapActions} from 'vuex'
+import Dialog from './dialog/appManageDialog'
+export default {
+    name:"Table1",
+    components:{
+        Dialog
+    },
+    data:function(){
+        return{
+            form:{
+                appName:'',
+                status:''
+            },
+            formEmpty:false,        
+            tableDatas:[],       //表格数据
+            appInfo:[{appCode:'',appName:''},{appCode:'',appName:''},{appCode:'',appName:''}],
+            statusInfo:[],
+            appnameOptions:[],
+            options: [{
+              value: '选项1',
+              label: '黄金糕'
+            }, {
+              value: '选项2',
+              label: '双皮奶'
+            }, {
+              value: '选项3',
+              label: '蚵仔煎'
+            }, {
+              value: '选项4',
+              label: '龙须面'
+            }, {
+              value: '选项5',
+              label: '北京烤鸭'
+            }],
+        }
+    },
+    beforeRouteEnter:(to,from,next)=>{
+		next(vm=>{
+        vm.mainContainerEl.setAttribute("class", "mainContainer animate__animated animate__zoomIn");
+		});
+    },
+    beforeRouteLeave:function(to,from,next){
+        this.mainContainerEl.setAttribute("class", "mainContainer");
+        next();
+    },
+    mounted:function(){
+        this.$store.dispatch('getfullHeight');
+        this.queryPageList(JSON.stringify({}));
+        this.queryAppName();
+        this.queryStatus();
+    },
+    computed:{
+        ...mapGetters(['fullHeight','mainContainerEl','currentLineData','currentPage','currentPage','pageSize']),
+    },
+    methods: {
+      //查询所有状态
+      queryStatus:function(){
+        this.$axios.get(process.env.API_HOST+'/appInfo/dropdown')
+        .then((res)=>{
+          this.statusInfo=[];
+          let resData=res.data.data.status,that=this;
+          resData.find((val,index,arr)=>{
+            let cellObj={};
+            cellObj.code=val.code;
+            cellObj.name=val.name;
+            that.statusInfo.push(cellObj);
+          })
+        })
+      },
+      //查询已有应用
+      queryAppName:function(){
+         this.$axios.get(process.env.API_HOST+'/appInfo/name')
+         .then((res)=>{
+           this.appnameOptions=res.data.data.name;
+           console.log(this.appnameOptions);
+         })
+      },
+      //序列
+      indexMethod(index) {
+        return index+1;
+      },
+      //size
+      handleSizeChange(val) {
+        console.log(val)
+        this.$store.commit(appManagetypes.setPageSize,val);
+        this.tableDatas=[];
+        let that=this;
+        this.queryPageList(JSON.stringify(that.form));
+      },
+      //page
+      handleCurrentChange1(val) {
+        this.$store.commit(appManagetypes.setCurrentPage,val);
+        this.tableDatas=[];
+        let that=this;
+        this.queryPageList(JSON.stringify(that.form));
+      },
+      //单选
+      handleCurrentChange(val) {
+        this.$store.commit(appManagetypes.setCurrentLineData,val);
+      },
+      //编辑行
+      lineEdit:function(val){
+        // console.log(val.row)
+        this.$store.commit(appManagetypes.setCurrentLineData,val.row);
+        this.$store.commit(appManagetypes.turnDialogFormVisible,true);
+        this.$store.commit(appManagetypes.setTitle,'应用系统更新');
+        this.$store.commit(appManagetypes.turnDialogStatus,'edit')
+      },
+      //编辑按钮
+      btnEdit:function(){
+        let that=this;
+        // console.log(this.currentLineData);
+        Object.keys(that.currentLineData).forEach((key)=>{
+          if(that.currentLineData[key]!=''){
+            that.formEmpty=true
+          }
+		  	});
+        if(this.formEmpty){
+            this.$store.commit(appManagetypes.turnDialogFormVisible,true); //显示弹窗
+            this.$store.commit(appManagetypes.setTitle,'应用系统更新');     //弹窗标题
+            this.$store.commit(appManagetypes.turnDialogStatus,'edit');   //弹窗状态 edit|add
+        }
+        else{
+          this.$message({
+            showClose:false,
+            type:'warning',
+            message:'请先选择一行！',
+            center:'center',
+            offset:this.fullHeight/2,
+          })
+        }
+      },
+      //添加
+      addItem(){
+        this.$store.commit(appManagetypes.turnDialogFormVisible,true);
+        this.$store.commit(appManagetypes.setTitle,'应用系统新建');
+        this.$store.commit(appManagetypes.turnDialogStatus,'add');
+      },
+      submit:function(){
+        let that=this;
+        this.tableDatas=[];
+        this.queryPageList(JSON.stringify(that.form));
+      },
+      resetForm() {
+        let obj=this.form;
+        let that=this;
+        Object.keys(obj).forEach((key)=>{
+          obj[key]='';
+        });
+        this.tableDatas=[];
+        this.queryPageList(JSON.stringify(that.form));
+      },
+      queryPageList:function(appInfo){
+         this.$axios.post(process.env.API_HOST+`/appInfo/selectPageList?pageNum=${this.currentPage}&pageSize=${this.pageSize}`,appInfo)
+         .then((res)=>{
+            let that=this;
+            let resData=res.data.data.list;
+            resData.find((value,index,arr)=>{
+              let cellObj={}
+              cellObj.id=value.id;
+              cellObj.appName=value.appName;
+              cellObj.englishName=value.englishName;
+              cellObj.status=value.status;
+              cellObj.url=value.url;
+              cellObj.remark=value.remark;
+              cellObj.createTime=value.createTime;
+              cellObj.createUsername=value.createUsername;
+              cellObj.orgCode=value.orgCode;
+              cellObj.appCode=value.appCode;
+              cellObj.password=value.password;
+              cellObj.loginName=value.loginName;
+              that.tableDatas.push(cellObj);
+            })
+            
+        }).catch((err)=>{
+            console.log(err);
+        })
+      }
+    }
+}
+</script>

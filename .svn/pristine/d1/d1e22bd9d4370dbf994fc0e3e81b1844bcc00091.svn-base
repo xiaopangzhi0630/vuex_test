@@ -1,0 +1,139 @@
+<template>
+  <div class="aside" ref='aside' @click="open">
+    <el-scrollbar>
+        <div class="logo">
+            <li class="symbol" v-if="!asideState" ref='symbol'><svg class="icon" aria-hidden="true"><use xlink:href="#vue"></use></svg></li>
+            <li class="text" v-if="asideState" ref='text'>基础权限中心服务系统</li>
+        </div>
+        <div class="menus">
+          <div class="item" v-for="(v,index,k) in menus" :key="k" >
+              <div class="item-name" @click="toggle($event,index)">
+                  <li class="menu-icon"><svg class="icon" aria-hidden="true"><use :xlink:href="v.icon"></use></svg></li>
+                  <li class="menu-title"  ref='menuTitle'>{{v.title}}</li>
+                  <li class="menu-arrow"  ref="menuArrow" :class="{'rotate':v.show}">
+                      <svg class="icon"  aria-hidden="true"><use xlink:href="#arrow"></use></svg>
+                  </li>
+              </div>
+
+              <div class="item-content clearfix" :style="{'height':(v.show ? v.height:'0')}" ref='itemContent'>
+                  <li @click="tab(childname.router,$event)" :class="{active:active==childname.router}"  v-for="(childname,index,k) in v.content" :key="k">{{childname.name}}</li>
+              </div>
+          </div>
+        </div>
+     </el-scrollbar>
+  </div>
+</template>
+<script>
+import types from '@/store/mutation-types.js'
+import {mapGetters,mapState,mapActions} from 'vuex';
+
+export default {
+    name:'Aside',
+    data:function(){
+     return{
+        height:-1,
+        slideToggle:true,
+        menus:[
+       {'icon':'#index','title':'应用管理中心','show':true,'height':'192px','content':[
+         {'name':'应用管理','router':'/main/appMange'},
+         {'name':'模块管理','router':'/main/moduleManage'},
+         {'name':'服务接口管理','router':'/main/apiManage'},
+         {'name':'部署管理','router':'/main/deployManage'},
+         // {'name':'服务管理','router':'/main/serviceManage'}``
+         ]},
+       {'icon':'#echarts','title':'统一资源管理','show':false,'height':'336px','content':[
+         {'name':'区域机房管理','router':'/main/roomManage'},
+         {'name':'服务器管理','router':'/main/machineManage'},
+         {'name':'服务器分组','router':'/main/machineGroup'},
+         {'name':'渠道管理','router':'/main/channel'},
+         {'name':'密钥管理','router':'/main/keyManage'},
+         {'name':'黑名单管理','router':'/main/blacklistManage'},
+         {'name':'统一异常管理','router':'/main/unusualManage'},
+         ]},
+       {'icon':'#tree','title':'系统管理','show':false,'height':'192px','content':[
+         {'name':'组织机构','router':'/main/orgManage'},
+         {'name':'职位管理','router':'/main/positionManage'},
+         {'name':'角色管理','router':'/main/tree3'},
+         {'name':'用户管理','router':'/main/userManage'},
+         ]},
+        {'icon':'#tree','title':'授权管理','show':false,'height':'144px','content':[
+        {'name':'菜单授权','router':'/main/tree1'},
+        {'name':'功能授权','router':'/main/tree2'},
+        {'name':'数据授权','router':'/main/tree3'},
+        {'name':'安全授权','router':'/main/tree3'},
+        ]},
+         {'icon':'#tree','title':'测试','show':false,'height':'192px','content':[
+        {'name':'Select','router':'/main/test1'},
+        {'name':'Select','router':'/main/test2'},
+        {'name':'TEST','router':'/main/test3'},
+        {'name':'TEST','router':'/main/test4'},
+        ]},
+      ],
+      active:'/main/appMange',  //初始路由
+      arr:[]
+     }
+    },
+    watch:{
+      $route: {
+         immediate: true, 
+         handler(to,from) { 
+            to.path=='/main'? this.active = '/main/appMange': this.active = to.path;
+                 }
+         }
+    },
+    computed:{
+      ...mapGetters(['asideState','asideEl','switchesEl','mainContainerEl','topEl','asideBg','itemContentEl','asideElarr','router']),
+    },
+    mounted:function(){
+      this.$store.dispatch('getasideEl',this.$refs.aside);
+      this.$store.commit(types.GETASIDEEL,this.$refs.aside);
+      this.$store.commit(types.LOGOSYMBOLEL,this.$refs.symbol);
+      this.$store.commit(types.LOGOTEXTEL,this.$refs.text);
+      this.$store.commit(types.GETITEMCONTENT,this.$refs.itemContent);
+      this.$store.commit(types.GETASIDEELARR,{
+         'menuTitle':this.$refs.menuTitle,
+         'menuArrow':this.$refs.menuArrow,
+       });
+    },
+
+    methods:{
+      toggle:function(event,index){
+        if(this.menus[index].show){
+           this.menus[index].show=false;
+        }
+        else{
+          this.menus[index].show=true;
+          for(var i=0;i<this.menus.length;i++){
+            if(i!=index){
+              this.menus[i].show=false;
+            }
+          }
+        }
+      },
+      tab:function(router,el){
+        this.$router.push(router);
+        this.active=router;
+      },
+      open:function(){
+        if(!this.asideState){
+          this.switchesEl.style.transform='rotate(0deg)';
+          this.asideEl.style.width='250px';
+          this.itemContentEl.find((value,index,arr)=>{
+              value.style.display='block';
+          });
+          this.asideElarr.menuTitle.find((value,index,arr)=>{
+            value.style.width='130px';
+          });
+          this.asideElarr.menuArrow.find((value,index,arr)=>{
+            value.style.width='20px';
+          })
+          this.mainContainerEl.style.paddingLeft='262px';
+          this.topEl.style.paddingLeft='262px';
+
+          this.$store.commit(types.SETASIDESTATE,!this.asideState);
+        };
+        
+      }
+    }
+}
+</script>

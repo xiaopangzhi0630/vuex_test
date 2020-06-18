@@ -1,0 +1,116 @@
+<template>
+
+  <div>
+    <el-dialog title='' :visible="statusDialogVisible" width="50%" :before-close="handleClose" center>
+
+      <el-form :model="ruleForm" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+
+        <el-Row>
+          <el-col :span="12" style="padding-left: 37px">
+            <el-form-item label="机构编码" prop="orgStatus">
+              <el-input v-model="ruleForm.orgCode" style="width: 80%"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="机构状态" prop="orgStatus">
+              <el-select v-model="ruleForm.orgStatus" placeholder="请选择">
+                <el-option label="请选择" value=""></el-option>
+                <el-option label="正常" value="1"></el-option>
+                <el-option label="失效" value="2"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-Row>
+
+
+
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="saveHandle">保 存</el-button>
+        <el-button type="primary" @click="resetHandle">重 置</el-button>
+      </span>
+
+    </el-dialog>
+
+  </div>
+
+</template>
+
+
+<script>
+  import {
+    mapGetters,
+    mapState,
+    mapActions
+  } from 'vuex'
+
+  export default {
+
+    data() {
+
+      return {
+
+        ruleForm: {
+          orgCode: '',
+          orgStatus: ''
+        }
+      };
+    },
+
+    computed: {
+
+      ...mapGetters('systemManage', ['statusDialogVisible', 'editChangeInfo']),
+    },
+
+
+    watch: {
+      editChangeInfo: function (val) {
+        console.log('val', val);
+
+        this.ruleForm = this.editChangeInfo
+      }
+    },
+
+    mounted: function () {
+      console.log(this.statusDialogVisible);
+
+    },
+
+
+    methods: {
+
+      // 
+      saveHandle: function () {
+        this.$store.commit('systemManage/setStatusDialogVisible', false);
+
+        console.log(this.ruleForm);
+
+      },
+
+      resetHandle: function () {
+        // this.$store.commit('systemManage/setStatusDialogVisible', false);
+
+        this.ruleForm = {
+          orgCode: '',
+          orgStatus: ''
+        }
+      },
+
+      handleClose: function () {
+        this.$store.commit('systemManage/setStatusDialogVisible', false);
+      }
+
+    },
+
+
+  }
+
+</script>>
+
+
+
+<style scoped>
+
+
+
+</style>
